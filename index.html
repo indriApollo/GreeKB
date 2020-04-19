@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>GreeKB</title>
+</head>
+<body>
+    <textarea id="txt"></textarea>
+    <script>
+        const txt = document.getElementById("txt")
+        
+        let composed = ''
+
+        let shift = false
+        let alt = false
+        let alt_gr = false
+
+        let comma = ''                  // psili, dasia
+        let accent = ''                 // varia, oxia, perispomeni
+        let ypo_pros_gegrammeni = ''
+        let vrachy_macron = ''
+
+        function handleKeyUp (event) {
+            let k = event.code
+
+            switch (k) {
+                case 'ShiftLeft':
+                    shift = false
+                    console.log('shift off')
+                    break
+                case 'AltRight':
+                    alt_gr = false
+                    break
+            }
+        }
+
+        function handleKeyDown (event) {
+            let k = event.code
+            console.log(k)
+            
+            switch (k) {
+                case 'ShiftLeft':
+                    shift = true
+                    console.log('shift on')
+                    break
+                case 'AltRight':
+                    alt_gr = true
+                    break
+                case 'BracketLeft':
+                    accent = diacritics.COMBINING_GREEK_PERISPOMENI.codepoint
+                    break
+                case 'BracketRight':
+                    ypo_pros_gegrammeni = diacritics.COMBINING_GREEK_YPOGEGRAMMENI.codepoint
+                    break
+                case 'Semicolon':
+                    if (shift) {
+                        comma = diacritics.COMBINING_COMMA_ABOVE.codepoint // dasia
+                    } else {
+                        accent = diacritics.COMBINING_ACUTE_ACCENT.codepoint // oxia
+                    }
+                    break
+                case 'Quote':
+                    if (shift) {
+                        comma = diacritics.COMBINING_REVERSED_COMMA_ABOVE.codepoint // psili
+                    } else {
+                        accent = diacritics.COMBINING_GRAVE_ACCENT.codepoint // varia
+                    }
+                    break
+                case 'KeyA':
+                    writeChar(letters.GREEK_SMALL_LETTER_ALPHA)
+                    break
+            }
+        }
+
+        function writeChar (l) {
+            // mandatory diacritic order : comma > accent > ypo_pros_gegrammeni > vrachy_macron
+            console.log(l.codepoint, comma, accent, ypo_pros_gegrammeni, vrachy_macron)
+            let u = (l.codepoint + comma + accent + ypo_pros_gegrammeni + vrachy_macron).normalize('NFC')
+            txt.value += u
+            comma = ''
+            accent = ''
+            ypo_pros_gegrammeni = ''
+            vrachy_macron = ''
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        window.addEventListener('keyup', handleKeyUp)
+
+        const diacritics = {
+            COMBINING_COMMA_ABOVE: { //psili
+                codepoint: '\u0313'
+            },
+            COMBINING_REVERSED_COMMA_ABOVE: { // dasia
+                codepoint: '\u0314'
+            },
+            COMBINING_GRAVE_ACCENT: { // varia
+                codepoint: '\u0300'
+            },
+            COMBINING_ACUTE_ACCENT: { // oxia
+                codepoint: '\u0301'
+            },
+            COMBINING_GREEK_PERISPOMENI: {
+                codepoint: '\u0342'
+            },
+            COMBINING_GREEK_YPOGEGRAMMENI: {
+                codepoint: '\u0345'
+            },
+            COMBINING_BREVE: {
+                codepoint: '\u0306'
+            },
+            COMBINING_MACRON: {
+                codepoint: '\u0304'
+            },
+            COMBINING_DIAERESIS: { // dialytika
+                codepoint: '\u0308'
+            }
+        }
+
+        const letters = {
+            GREEK_SMALL_LETTER_ALPHA: {
+                codepoint: '\u03b1',
+                comma: true,
+                accent: true,
+                ypo_pros_gegrammeni: true,
+                vrachy_macron: true
+            },
+            GREEK_SMALL_LETTER_BETA: {
+                codepoint: '\u03b2'
+            },
+            GREEK_SMALL_LETTER_GAMMA: {
+                codepoint: '\u03b3'
+            },
+            GREEK_SMALL_LETTER_DELTA: {
+                codepoint: '\u03b4'
+            },
+            GREEK_SMALL_LETTER_EPSILON: {
+                codepoint: '\u03b5'
+            },
+            GREEK_SMALL_LETTER_ZETA: {
+                codepoint: '\u03b6'
+            },
+            GREEK_SMALL_LETTER_ETA: {
+                codepoint: '\u03b7'
+            },
+            GREEK_SMALL_LETTER_THETA: {
+                codepoint: '\u03b8'
+            },
+            GREEK_SMALL_LETTER_IOTA: {
+                codepoint: '\u03b9'
+            },
+            GREEK_SMALL_LETTER_KAPPA: {
+                codepoint: '\u03ba'
+            },
+            GREEK_SMALL_LETTER_LAMDA: {
+                codepoint: '\u03bb'
+            },
+            GREEK_SMALL_LETTER_MU: {
+                codepoint: '\u03bc'
+            },
+            GREEK_SMALL_LETTER_NU: {
+                codepoint: '\u03bd'
+            },
+            GREEK_SMALL_LETTER_XI: {
+                codepoint: '\u03be'
+            },
+            GREEK_SMALL_LETTER_OMICRON: {
+                codepoint: '\u03bf'
+            },
+            GREEK_SMALL_LETTER_PI: {
+                codepoint: '\u03c0'
+            },
+            GREEK_SMALL_LETTER_RHO: {
+                codepoint: '\u03c1'
+            },
+            GREEK_SMALL_LETTER_FINAL_SIGMA: {
+                codepoint: '\u03c2'
+            },
+            GREEK_SMALL_LETTER_SIGMA: {
+                codepoint: '\u03c3'
+            },
+            GREEK_SMALL_LETTER_TAU: {
+                codepoint: '\u03c4'
+            },
+            GREEK_SMALL_LETTER_UPSILON: {
+                codepoint: '\u03c5'
+            },
+            GREEK_SMALL_LETTER_PHI: {
+                codepoint: '\u03c6'
+            },
+            GREEK_SMALL_LETTER_CHI: {
+                codepoint: '\u03c7'
+            },
+            GREEK_SMALL_LETTER_PSI: {
+                codepoint: '\u03c8'
+            },
+            GREEK_SMALL_LETTER_OMEGA: {
+                codepoint: '\u03c9'
+            }
+        }
+    </script>
+</body>
+</html>
