@@ -4,14 +4,16 @@
     <title>GreeKB</title>
 </head>
 <body>
-    <textarea id="txt"></textarea>
+    <textarea id="txt" style="font-size: 2em;" cols="50"></textarea>
     <script>
+        // https://www.unicode.org/charts/PDF/U1F00.pdf
+        // https://www.unicode.org/charts/PDF/U0370.pdf
+        
         const txt = document.getElementById("txt")
         
         let composed = ''
 
         let shift = false
-        let alt = false
         let alt_gr = false
 
         let comma = ''                  // psili, dasia
@@ -25,7 +27,6 @@
             switch (k) {
                 case 'ShiftLeft':
                     shift = false
-                    console.log('shift off')
                     break
                 case 'AltRight':
                     alt_gr = false
@@ -40,16 +41,23 @@
             switch (k) {
                 case 'ShiftLeft':
                     shift = true
-                    console.log('shift on')
                     break
                 case 'AltRight':
                     alt_gr = true
                     break
                 case 'BracketLeft':
-                    accent = diacritics.COMBINING_GREEK_PERISPOMENI.codepoint
+                    if (shift && alt_gr) {
+                        vrachy_macron = diacritics.COMBINING_MACRON.codepoint
+                    } else {
+                        accent = diacritics.COMBINING_GREEK_PERISPOMENI.codepoint
+                    }
                     break
                 case 'BracketRight':
-                    ypo_pros_gegrammeni = diacritics.COMBINING_GREEK_YPOGEGRAMMENI.codepoint
+                    if (shift && alt_gr) {
+                        vrachy_macron = diacritics.COMBINING_BREVE.codepoint
+                    } else {
+                        ypo_pros_gegrammeni = diacritics.COMBINING_GREEK_YPOGEGRAMMENI.codepoint
+                    }
                     break
                 case 'Semicolon':
                     if (shift) {
@@ -65,8 +73,80 @@
                         accent = diacritics.COMBINING_GRAVE_ACCENT.codepoint // varia
                     }
                     break
+                case 'KeyW':
+                    writeChar(letters.GREEK_SMALL_LETTER_FINAL_SIGMA)
+                    break
+                case 'KeyE':
+                    writeChar(letters.GREEK_SMALL_LETTER_EPSILON)
+                    break
+                case 'KeyR':
+                    writeChar(letters.GREEK_SMALL_LETTER_RHO)
+                    break;
+                case 'KeyT':
+                    writeChar(letters.GREEK_SMALL_LETTER_TAU)
+                    break
+                case 'KeyY':
+                    writeChar(letters.GREEK_SMALL_LETTER_UPSILON)
+                    break;
+                case 'KeyU':
+                    writeChar(letters.GREEK_SMALL_LETTER_THETA)
+                    break;
+                case 'KeyI':
+                    writeChar(letters.GREEK_SMALL_LETTER_IOTA)
+                    break
+                case 'KeyO':
+                    writeChar(letters.GREEK_SMALL_LETTER_OMICRON)
+                    break
+                case 'KeyP':
+                    writeChar(letters.GREEK_SMALL_LETTER_PI)
+                    break
                 case 'KeyA':
                     writeChar(letters.GREEK_SMALL_LETTER_ALPHA)
+                    break
+                case 'KeyS':
+                    writeChar(letters.GREEK_SMALL_LETTER_SIGMA)
+                    break
+                case 'KeyD':
+                    writeChar(letters.GREEK_SMALL_LETTER_DELTA)
+                    break
+                case 'KeyF':
+                    writeChar(letters.GREEK_SMALL_LETTER_PHI)
+                    break
+                case 'KeyG':
+                    writeChar(letters.GREEK_SMALL_LETTER_GAMMA)
+                    break
+                case 'KeyH':
+                    writeChar(letters.GREEK_SMALL_LETTER_ETA)
+                    break
+                case 'KeyJ':
+                    writeChar(letters.GREEK_SMALL_LETTER_XI)
+                    break
+                case 'KeyK':
+                    writeChar(letters.GREEK_SMALL_LETTER_KAPPA)
+                    break
+                case 'KeyL':
+                    writeChar(letters.GREEK_SMALL_LETTER_LAMBDA)
+                    break
+                case 'KeyZ':
+                    writeChar(letters.GREEK_SMALL_LETTER_ZETA)
+                    break
+                case 'KeyX':
+                    writeChar(letters.GREEK_SMALL_LETTER_CHI)
+                    break
+                case 'KeyC':
+                    writeChar(letters.GREEK_SMALL_LETTER_PSI)
+                    break
+                case 'KeyV':
+                    writeChar(letters.GREEK_SMALL_LETTER_OMEGA)
+                    break
+                case 'KeyB':
+                    writeChar(letters.GREEK_SMALL_LETTER_BETA)
+                    break
+                case 'KeyN':
+                    writeChar(letters.GREEK_SMALL_LETTER_NU)
+                    break
+                case 'KeyM':
+                    writeChar(letters.GREEK_SMALL_LETTER_MU)
                     break
             }
         }
@@ -74,7 +154,50 @@
         function writeChar (l) {
             // mandatory diacritic order : comma > accent > ypo_pros_gegrammeni > vrachy_macron
             console.log(l.codepoint, comma, accent, ypo_pros_gegrammeni, vrachy_macron)
-            let u = (l.codepoint + comma + accent + ypo_pros_gegrammeni + vrachy_macron).normalize('NFC')
+
+            if (comma != '' && !l.comma) {
+                console.log('illegal comma')
+                comma = ''
+            }
+
+            if (accent != '') {
+                if (accent === diacritics.COMBINING_GREEK_PERISPOMENI.codepoint && !l.perispomeni) {
+                    console.log('illegal perispomeni')
+                    accent = ''
+                } else if (!l.accent) {
+                    console.log('illegal accent')
+                    accent = ''
+                }
+            }
+
+            if (ypo_pros_gegrammeni != '' && !l.ypo_pros_gegrammeni) {
+                console.log('illegal ypo_pros_gegrammeni')
+                ypo_pros_gegrammeni = ''
+            }
+
+            if (vrachy_macron != '') {
+                if (!l.vrachy_macron) {
+                    console.log('illegal vrachy_macron')
+                    vrachy_macron = ''
+                } else if (comma != '' || accent != '' || ypo_pros_gegrammeni != '') {
+                    console.log('illegal vrachy_macron combination')
+                    comma = ''
+                    accent = ''
+                    ypo_pros_gegrammeni = ''
+                }
+            }
+            
+            let cp = l.codepoint
+
+            if (shift) {
+                // For final sigma maj we need to use normal sigma as base
+                if (cp === letters.GREEK_SMALL_LETTER_FINAL_SIGMA.codepoint) {
+                    cp = letters.GREEK_SMALL_LETTER_SIGMA.codepoint
+                }
+                cp = String.fromCodePoint(cp.codePointAt(0) - majLetterOffset) // get majuscule
+            }
+
+            let u = (cp + comma + accent + ypo_pros_gegrammeni + vrachy_macron).normalize('NFC')
             txt.value += u
             comma = ''
             accent = ''
@@ -84,6 +207,8 @@
 
         window.addEventListener('keydown', handleKeyDown)
         window.addEventListener('keyup', handleKeyUp)
+        
+        const majLetterOffset = 32
 
         const diacritics = {
             COMBINING_COMMA_ABOVE: { //psili
@@ -120,6 +245,7 @@
                 codepoint: '\u03b1',
                 comma: true,
                 accent: true,
+                perispomeni: true,
                 ypo_pros_gegrammeni: true,
                 vrachy_macron: true
             },
@@ -133,24 +259,35 @@
                 codepoint: '\u03b4'
             },
             GREEK_SMALL_LETTER_EPSILON: {
-                codepoint: '\u03b5'
+                codepoint: '\u03b5',
+                comma: true,
+                accent: true
             },
             GREEK_SMALL_LETTER_ZETA: {
                 codepoint: '\u03b6'
             },
             GREEK_SMALL_LETTER_ETA: {
-                codepoint: '\u03b7'
+                codepoint: '\u03b7',
+                comma: true,
+                accent: true,
+                perispomeni: true,
+                ypo_pros_gegrammeni: true
             },
             GREEK_SMALL_LETTER_THETA: {
                 codepoint: '\u03b8'
             },
             GREEK_SMALL_LETTER_IOTA: {
-                codepoint: '\u03b9'
+                codepoint: '\u03b9',
+                comma: true,
+                accent: true,
+                perispomeni: true,
+                vrachy_macron: true,
+                dialytika: true
             },
             GREEK_SMALL_LETTER_KAPPA: {
                 codepoint: '\u03ba'
             },
-            GREEK_SMALL_LETTER_LAMDA: {
+            GREEK_SMALL_LETTER_LAMBDA: {
                 codepoint: '\u03bb'
             },
             GREEK_SMALL_LETTER_MU: {
@@ -163,13 +300,16 @@
                 codepoint: '\u03be'
             },
             GREEK_SMALL_LETTER_OMICRON: {
-                codepoint: '\u03bf'
+                codepoint: '\u03bf',
+                comma: true,
+                accent: true
             },
             GREEK_SMALL_LETTER_PI: {
                 codepoint: '\u03c0'
             },
             GREEK_SMALL_LETTER_RHO: {
-                codepoint: '\u03c1'
+                codepoint: '\u03c1',
+                comma: true
             },
             GREEK_SMALL_LETTER_FINAL_SIGMA: {
                 codepoint: '\u03c2'
@@ -181,7 +321,12 @@
                 codepoint: '\u03c4'
             },
             GREEK_SMALL_LETTER_UPSILON: {
-                codepoint: '\u03c5'
+                codepoint: '\u03c5',
+                comma: true,
+                accent: true,
+                perispomeni: true,
+                vrachy_macron: true,
+                dialytika: true
             },
             GREEK_SMALL_LETTER_PHI: {
                 codepoint: '\u03c6'
@@ -193,7 +338,12 @@
                 codepoint: '\u03c8'
             },
             GREEK_SMALL_LETTER_OMEGA: {
-                codepoint: '\u03c9'
+                codepoint: '\u03c9',
+                comma: true,
+                accent: true,
+                perispomeni: true,
+                ypo_pros_gegrammeni: true,
+                vrachy_macron: true
             }
         }
     </script>
